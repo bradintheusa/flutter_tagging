@@ -136,6 +136,10 @@ class FlutterTagging<T extends Taggable> extends StatefulWidget {
   ///
   final List<T> initialItems;
 
+  /// If set to true, the chips will be disabled and the field will behave as a dropdown
+  ///
+  final bool dropdown;
+
   /// Creates a [FlutterTagging] widget.
   FlutterTagging({
     required this.initialItems,
@@ -160,6 +164,7 @@ class FlutterTagging<T extends Taggable> extends StatefulWidget {
     this.animationDuration = const Duration(milliseconds: 500),
     this.animationStart = 0.25,
     this.onAdded,
+    this.dropdown = false,
   });
 
   @override
@@ -255,18 +260,20 @@ class _FlutterTaggingState<T extends Taggable>
               trailing: InkWell(
                 splashColor: conf.splashColor ?? Theme.of(context).splashColor,
                 borderRadius: conf.splashRadius,
-                onTap: () async {
-                  if (widget.onAdded != null) {
-                    final _item = await widget.onAdded!(item);
-                    widget.initialItems.add(_item);
-                  } else {
-                    widget.initialItems.add(item);
-                  }
-                  setState(() {});
-                  widget.onChanged?.call();
-                  _textController.clear();
-                  _focusNode.unfocus();
-                },
+                onTap: widget.dropdown
+                    ? null
+                    : () async {
+                        if (widget.onAdded != null) {
+                          final _item = await widget.onAdded!(item);
+                          widget.initialItems.add(_item);
+                        } else {
+                          widget.initialItems.add(item);
+                        }
+                        setState(() {});
+                        widget.onChanged?.call();
+                        _textController.clear();
+                        _focusNode.unfocus();
+                      },
                 child: Builder(
                   builder: (context) {
                     if (conf.additionWidget != null && _additionItem == item) {
@@ -279,14 +286,22 @@ class _FlutterTaggingState<T extends Taggable>
               ),
             );
           },
-          onSuggestionSelected: (suggestion) {
-            if (_additionItem != suggestion) {
-              widget.initialItems.add(suggestion);
-              setState(() {});
-              widget.onChanged?.call();
-              _textController.clear();
-            }
-          },
+          onSuggestionSelected: widget.dropdown
+              ? (suggestion) {
+                  final conf = widget.configureSuggestion(suggestion);
+                  final text = conf.text.toString();
+                  setState(() {
+                    _textController.text = text;
+                  });
+                }
+              : (suggestion) {
+                  if (_additionItem != suggestion) {
+                    widget.initialItems.add(suggestion);
+                    setState(() {});
+                    widget.onChanged?.call();
+                    _textController.clear();
+                  }
+                },
         ),
         SizedBox(
           height: widget.marginTop,

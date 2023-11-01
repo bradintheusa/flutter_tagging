@@ -71,6 +71,10 @@ class SuggestionConfiguration {
   /// If this is null, it is interpreted as [BorderRadius.zero].
   final BorderRadius splashRadius;
 
+  /// The String value passed to configuration
+  ///
+  final String? text;
+
   ///
   const SuggestionConfiguration({
     required this.title,
@@ -82,6 +86,7 @@ class SuggestionConfiguration {
     this.additionWidget,
     this.splashColor,
     this.splashRadius = BorderRadius.zero,
+    this.text,
   });
 }
 

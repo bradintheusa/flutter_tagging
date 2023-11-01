@@ -55,6 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: FlutterTagging<Language>(
+              dropdown: true,
               initialItems: _selectedLanguages,
               marginTop: 5,
               textFieldConfiguration: TextFieldConfiguration(
@@ -79,22 +80,22 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               configureSuggestion: (lang) {
                 return SuggestionConfiguration(
-                  title: Text(lang.name),
-                  subtitle: Text(lang.position.toString()),
-                  additionWidget: Chip(
-                    avatar: Icon(
-                      Icons.add_circle,
-                      color: Colors.white,
+                    title: Text(lang.name),
+                    subtitle: Text(lang.position.toString()),
+                    additionWidget: Chip(
+                      avatar: Icon(
+                        Icons.add_circle,
+                        color: Colors.white,
+                      ),
+                      label: Text('Add New Tag'),
+                      labelStyle: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.w300,
+                      ),
+                      backgroundColor: Colors.green,
                     ),
-                    label: Text('Add New Tag'),
-                    labelStyle: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.w300,
-                    ),
-                    backgroundColor: Colors.green,
-                  ),
-                );
+                    text: lang.name);
               },
               configureChip: (lang) {
                 return ChipConfiguration(
