@@ -85,7 +85,7 @@ class FlutterTagging<T extends Taggable> extends StatefulWidget {
   /// This argument is best used with [transitionBuilder] and [animationStart]
   /// to fully control the animation.
   ///
-  /// Defaults to 50 milliseconds.
+  /// Defaults to 500 milliseconds.
   final Duration animationDuration;
 
   /// The value at which the [transitionBuilder] animation starts.
@@ -120,7 +120,7 @@ class FlutterTagging<T extends Taggable> extends StatefulWidget {
   /// This is useful, because, if not set, a request for suggestions will be
   /// sent for every character that the user types.
   ///
-  /// This duration is set by default to 0 milliseconds.
+  /// This duration is set by default to 300 milliseconds.
   final Duration debounceDuration;
 
   /// If set to true, suggestions will be fetched immediately when the field is
@@ -161,11 +161,11 @@ class FlutterTagging<T extends Taggable> extends StatefulWidget {
     this.textFieldConfiguration = const TextFieldConfiguration(),
     this.suggestionsBoxConfiguration = const SuggestionsBoxConfiguration(),
     this.transitionBuilder,
-    this.debounceDuration = const Duration(milliseconds: 0),
+    this.debounceDuration = const Duration(milliseconds: 300),
     this.hideOnEmpty = false,
     this.hideOnError = false,
     this.hideOnLoading = false,
-    this.animationDuration = const Duration(milliseconds: 50),
+    this.animationDuration = const Duration(milliseconds: 500),
     this.animationStart = 0.25,
     this.onAdded,
     this.dropdown = false,
