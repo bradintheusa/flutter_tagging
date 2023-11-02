@@ -120,7 +120,7 @@ class FlutterTagging<T extends Taggable> extends StatefulWidget {
   /// This is useful, because, if not set, a request for suggestions will be
   /// sent for every character that the user types.
   ///
-  /// This duration is set by default to 300 milliseconds.
+  /// This duration is set by default to 250 milliseconds.
   final Duration debounceDuration;
 
   /// If set to true, suggestions will be fetched immediately when the field is
@@ -161,7 +161,7 @@ class FlutterTagging<T extends Taggable> extends StatefulWidget {
     this.textFieldConfiguration = const TextFieldConfiguration(),
     this.suggestionsBoxConfiguration = const SuggestionsBoxConfiguration(),
     this.transitionBuilder,
-    this.debounceDuration = const Duration(milliseconds: 300),
+    this.debounceDuration = const Duration(milliseconds: 250),
     this.hideOnEmpty = false,
     this.hideOnError = false,
     this.hideOnLoading = false,
@@ -323,43 +323,55 @@ class _FlutterTaggingState<T extends Taggable>
                   }
                 },
         ),
-        SizedBox(
-          height: widget.marginTop,
-        ),
-        Wrap(
-          alignment: widget.wrapConfiguration.alignment,
-          crossAxisAlignment: widget.wrapConfiguration.crossAxisAlignment,
-          runAlignment: widget.wrapConfiguration.runAlignment,
-          runSpacing: widget.wrapConfiguration.runSpacing,
-          spacing: widget.wrapConfiguration.spacing,
-          direction: widget.wrapConfiguration.direction,
-          textDirection: widget.wrapConfiguration.textDirection,
-          verticalDirection: widget.wrapConfiguration.verticalDirection,
-          children: widget.initialItems.map<Widget>((item) {
-            final conf = widget.configureChip(item);
-            return Chip(
-              label: conf.label,
-              shape: conf.shape,
-              avatar: conf.avatar,
-              backgroundColor: conf.backgroundColor,
-              clipBehavior: conf.clipBehavior,
-              deleteButtonTooltipMessage: conf.deleteButtonTooltipMessage,
-              deleteIcon: conf.deleteIcon,
-              deleteIconColor: conf.deleteIconColor,
-              elevation: conf.elevation,
-              labelPadding: conf.labelPadding,
-              labelStyle: conf.labelStyle,
-              materialTapTargetSize: conf.materialTapTargetSize,
-              padding: conf.padding,
-              shadowColor: conf.shadowColor,
-              onDeleted: () {
-                widget.initialItems.remove(item);
-                setState(() {});
-                widget.onChanged?.call();
-              },
-            );
-          }).toList(),
-        ),
+        widget.dropdown
+            ? SizedBox(
+                height: 0,
+                width: 0,
+              )
+            : Column(
+                children: [
+                  SizedBox(
+                    height: widget.marginTop,
+                  ),
+                  Wrap(
+                    alignment: widget.wrapConfiguration.alignment,
+                    crossAxisAlignment:
+                        widget.wrapConfiguration.crossAxisAlignment,
+                    runAlignment: widget.wrapConfiguration.runAlignment,
+                    runSpacing: widget.wrapConfiguration.runSpacing,
+                    spacing: widget.wrapConfiguration.spacing,
+                    direction: widget.wrapConfiguration.direction,
+                    textDirection: widget.wrapConfiguration.textDirection,
+                    verticalDirection:
+                        widget.wrapConfiguration.verticalDirection,
+                    children: widget.initialItems.map<Widget>((item) {
+                      final conf = widget.configureChip(item);
+                      return Chip(
+                        label: conf.label,
+                        shape: conf.shape,
+                        avatar: conf.avatar,
+                        backgroundColor: conf.backgroundColor,
+                        clipBehavior: conf.clipBehavior,
+                        deleteButtonTooltipMessage:
+                            conf.deleteButtonTooltipMessage,
+                        deleteIcon: conf.deleteIcon,
+                        deleteIconColor: conf.deleteIconColor,
+                        elevation: conf.elevation,
+                        labelPadding: conf.labelPadding,
+                        labelStyle: conf.labelStyle,
+                        materialTapTargetSize: conf.materialTapTargetSize,
+                        padding: conf.padding,
+                        shadowColor: conf.shadowColor,
+                        onDeleted: () {
+                          widget.initialItems.remove(item);
+                          setState(() {});
+                          widget.onChanged?.call();
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
       ],
     );
   }
