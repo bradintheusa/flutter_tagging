@@ -253,7 +253,7 @@ class _FlutterTaggingState<T extends Taggable>
               if (!suggestions.contains(additionItem) &&
                   !widget.initialItems.contains(additionItem)) {
                 _additionItem = additionItem;
-                suggestions.insert(0, additionItem);
+                // suggestions.insert(0, additionItem);
               } else {
                 _additionItem = null;
               }
@@ -265,7 +265,7 @@ class _FlutterTaggingState<T extends Taggable>
             return ListTile(
               key: ObjectKey(item),
               title: conf.title,
-              // subtitle: conf.subtitle,
+              subtitle: conf.subtitle,
               leading: conf.leading,
               trailing: InkWell(
                 splashColor: conf.splashColor ?? Theme.of(context).splashColor,
