@@ -85,7 +85,7 @@ class FlutterTagging<T extends Taggable> extends StatefulWidget {
   /// This argument is best used with [transitionBuilder] and [animationStart]
   /// to fully control the animation.
   ///
-  /// Defaults to 500 milliseconds.
+  /// Defaults to 50 milliseconds.
   final Duration animationDuration;
 
   /// The value at which the [transitionBuilder] animation starts.
@@ -120,7 +120,7 @@ class FlutterTagging<T extends Taggable> extends StatefulWidget {
   /// This is useful, because, if not set, a request for suggestions will be
   /// sent for every character that the user types.
   ///
-  /// This duration is set by default to 300 milliseconds.
+  /// This duration is set by default to 0 milliseconds.
   final Duration debounceDuration;
 
   /// If set to true, suggestions will be fetched immediately when the field is
@@ -140,6 +140,10 @@ class FlutterTagging<T extends Taggable> extends StatefulWidget {
   ///
   final bool dropdown;
 
+  /// When this is set to true, filter will be applied when fetching suggestions
+  ///
+  bool filter = false;
+
   /// Creates a [FlutterTagging] widget.
   FlutterTagging({
     required this.initialItems,
@@ -157,11 +161,11 @@ class FlutterTagging<T extends Taggable> extends StatefulWidget {
     this.textFieldConfiguration = const TextFieldConfiguration(),
     this.suggestionsBoxConfiguration = const SuggestionsBoxConfiguration(),
     this.transitionBuilder,
-    this.debounceDuration = const Duration(milliseconds: 300),
+    this.debounceDuration = const Duration(milliseconds: 0),
     this.hideOnEmpty = false,
     this.hideOnError = false,
     this.hideOnLoading = false,
-    this.animationDuration = const Duration(milliseconds: 500),
+    this.animationDuration = const Duration(milliseconds: 50),
     this.animationStart = 0.25,
     this.onAdded,
     this.dropdown = false,
@@ -231,12 +235,18 @@ class _FlutterTaggingState<T extends Taggable>
               ),
           noItemsFoundBuilder: widget.emptyBuilder,
           textFieldConfiguration: widget.textFieldConfiguration.copyWith(
-            focusNode: _focusNode,
-            controller: _textController,
-            enabled: widget.textFieldConfiguration.enabled,
-          ),
+              focusNode: _focusNode,
+              controller: _textController,
+              enabled: widget.textFieldConfiguration.enabled,
+              onChanged: (String val) {
+                setState(() {
+                  widget.filter = true;
+                });
+              }),
           suggestionsCallback: (query) async {
-            final suggestions = await widget.findSuggestions(query);
+            final suggestions = widget.filter
+                ? await widget.findSuggestions(query)
+                : await widget.findSuggestions('');
             suggestions.removeWhere(widget.initialItems.contains);
             if (widget.additionCallback != null && query.isNotEmpty) {
               final additionItem = widget.additionCallback!(query);
@@ -255,19 +265,29 @@ class _FlutterTaggingState<T extends Taggable>
             return ListTile(
               key: ObjectKey(item),
               title: conf.title,
-              subtitle: conf.subtitle,
+              // subtitle: conf.subtitle,
               leading: conf.leading,
               trailing: InkWell(
                 splashColor: conf.splashColor ?? Theme.of(context).splashColor,
                 borderRadius: conf.splashRadius,
                 onTap: widget.dropdown
-                    ? null
+                    ? () {
+                        setState(() {
+                          widget.filter = false;
+                        });
+                      }
                     : () async {
                         if (widget.onAdded != null) {
                           final _item = await widget.onAdded!(item);
                           widget.initialItems.add(_item);
+                          setState(() {
+                            widget.filter = false;
+                          });
                         } else {
                           widget.initialItems.add(item);
+                          setState(() {
+                            widget.filter = false;
+                          });
                         }
                         setState(() {});
                         widget.onChanged?.call();
@@ -292,6 +312,7 @@ class _FlutterTaggingState<T extends Taggable>
                   final text = conf.text.toString();
                   setState(() {
                     _textController.text = text;
+                    widget.filter = false;
                   });
                 }
               : (suggestion) {
