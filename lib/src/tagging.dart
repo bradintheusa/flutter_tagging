@@ -120,7 +120,7 @@ class FlutterTagging<T extends Taggable> extends StatefulWidget {
   /// This is useful, because, if not set, a request for suggestions will be
   /// sent for every character that the user types.
   ///
-  /// This duration is set by default to 250 milliseconds.
+  /// This duration is set by default to 200 milliseconds.
   final Duration debounceDuration;
 
   /// If set to true, suggestions will be fetched immediately when the field is
@@ -161,7 +161,7 @@ class FlutterTagging<T extends Taggable> extends StatefulWidget {
     this.textFieldConfiguration = const TextFieldConfiguration(),
     this.suggestionsBoxConfiguration = const SuggestionsBoxConfiguration(),
     this.transitionBuilder,
-    this.debounceDuration = const Duration(milliseconds: 250),
+    this.debounceDuration = const Duration(milliseconds: 200),
     this.hideOnEmpty = false,
     this.hideOnError = false,
     this.hideOnLoading = false,
@@ -178,6 +178,7 @@ class FlutterTagging<T extends Taggable> extends StatefulWidget {
 class _FlutterTaggingState<T extends Taggable>
     extends State<FlutterTagging<T>> {
   late final TextEditingController _textController;
+  late final String? Function(String?)? _validator;
   late final FocusNode _focusNode;
   T? _additionItem;
 
@@ -186,6 +187,7 @@ class _FlutterTaggingState<T extends Taggable>
     super.initState();
     _textController =
         widget.textFieldConfiguration.controller ?? TextEditingController();
+    _validator = widget.textFieldConfiguration.validator;
     _focusNode = widget.textFieldConfiguration.focusNode ?? FocusNode();
   }
 
@@ -236,6 +238,7 @@ class _FlutterTaggingState<T extends Taggable>
           textFieldConfiguration: widget.textFieldConfiguration.copyWith(
               focusNode: _focusNode,
               controller: _textController,
+              validator: _validator,
               enabled: widget.textFieldConfiguration.enabled,
               onChanged: (String val) {
                 setState(() {
