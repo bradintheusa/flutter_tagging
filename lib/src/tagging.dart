@@ -203,7 +203,7 @@ class _FlutterTaggingState<T extends Taggable>
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        TypeAheadField<T>(
+        TypeAheadFormField<T>(
           getImmediateSuggestions: widget.enableImmediateSuggestion,
           debounceDuration: widget.debounceDuration,
           hideOnEmpty: widget.hideOnEmpty,
