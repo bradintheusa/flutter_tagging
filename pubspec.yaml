@@ -10,10 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_typeahead:
-    git: 
-      url: https://github.com/waqas-JT/flutter_typeahead
-      ref: master
+  flutter_typeahead: ^4.8.0
 
 
 dev_dependencies:

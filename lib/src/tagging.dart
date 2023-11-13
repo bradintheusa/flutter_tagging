@@ -5,7 +5,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_typeahead/flutter_typeahead2.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import 'configurations.dart';
 import 'taggable.dart';
@@ -144,32 +144,34 @@ class FlutterTagging<T extends Taggable> extends StatefulWidget {
   ///
   bool filter = false;
 
+  late final String? Function(String?)? validator;
+
   /// Creates a [FlutterTagging] widget.
-  FlutterTagging({
-    required this.initialItems,
-    required this.findSuggestions,
-    required this.configureChip,
-    required this.configureSuggestion,
-    this.marginTop,
-    this.onChanged,
-    this.additionCallback,
-    this.enableImmediateSuggestion = false,
-    this.errorBuilder,
-    this.loadingBuilder,
-    this.emptyBuilder,
-    this.wrapConfiguration = const WrapConfiguration(),
-    this.textFieldConfiguration = const TextFieldConfiguration(),
-    this.suggestionsBoxConfiguration = const SuggestionsBoxConfiguration(),
-    this.transitionBuilder,
-    this.debounceDuration = const Duration(milliseconds: 200),
-    this.hideOnEmpty = false,
-    this.hideOnError = false,
-    this.hideOnLoading = false,
-    this.animationDuration = const Duration(milliseconds: 500),
-    this.animationStart = 0.25,
-    this.onAdded,
-    this.dropdown = false,
-  });
+  FlutterTagging(
+      {required this.initialItems,
+      required this.findSuggestions,
+      required this.configureChip,
+      required this.configureSuggestion,
+      this.marginTop,
+      this.onChanged,
+      this.additionCallback,
+      this.enableImmediateSuggestion = false,
+      this.errorBuilder,
+      this.loadingBuilder,
+      this.emptyBuilder,
+      this.wrapConfiguration = const WrapConfiguration(),
+      this.textFieldConfiguration = const TextFieldConfiguration(),
+      this.suggestionsBoxConfiguration = const SuggestionsBoxConfiguration(),
+      this.transitionBuilder,
+      this.debounceDuration = const Duration(milliseconds: 200),
+      this.hideOnEmpty = false,
+      this.hideOnError = false,
+      this.hideOnLoading = false,
+      this.animationDuration = const Duration(milliseconds: 500),
+      this.animationStart = 0.25,
+      this.onAdded,
+      this.dropdown = false,
+      this.validator});
 
   @override
   _FlutterTaggingState<T> createState() => _FlutterTaggingState<T>();
@@ -178,7 +180,6 @@ class FlutterTagging<T extends Taggable> extends StatefulWidget {
 class _FlutterTaggingState<T extends Taggable>
     extends State<FlutterTagging<T>> {
   late final TextEditingController _textController;
-  late final String? Function(String?)? _validator;
   late final FocusNode _focusNode;
   T? _additionItem;
 
@@ -187,7 +188,6 @@ class _FlutterTaggingState<T extends Taggable>
     super.initState();
     _textController =
         widget.textFieldConfiguration.controller ?? TextEditingController();
-    _validator = widget.textFieldConfiguration.validator;
     _focusNode = widget.textFieldConfiguration.focusNode ?? FocusNode();
   }
 
@@ -211,6 +211,7 @@ class _FlutterTaggingState<T extends Taggable>
           hideOnLoading: widget.hideOnLoading,
           animationStart: widget.animationStart,
           animationDuration: widget.animationDuration,
+          validator: widget.validator,
           autoFlipDirection:
               widget.suggestionsBoxConfiguration.autoFlipDirection,
           direction: widget.suggestionsBoxConfiguration.direction,
@@ -238,7 +239,6 @@ class _FlutterTaggingState<T extends Taggable>
           textFieldConfiguration: widget.textFieldConfiguration.copyWith(
               focusNode: _focusNode,
               controller: _textController,
-              validator: _validator,
               enabled: widget.textFieldConfiguration.enabled,
               onChanged: (String val) {
                 setState(() {

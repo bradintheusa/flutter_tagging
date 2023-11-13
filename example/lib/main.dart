@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_syntax_view/flutter_syntax_view.dart';
 import 'package:flutter_tagging_plus/flutter_tagging_plus.dart';
@@ -31,10 +30,12 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String _selectedValuesJson = 'Nothing to show';
   late List<Language> _selectedLanguages;
-
+  TextEditingController? controller = TextEditingController();
+  late GlobalKey<FormState> _formKey;
   @override
   void initState() {
     _selectedLanguages = [];
+    _formKey = GlobalKey<FormState>();
     super.initState();
   }
 
@@ -52,73 +53,94 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: FlutterTagging<Language>(
-              dropdown: true,
-              initialItems: _selectedLanguages,
-              marginTop: 5,
-              textFieldConfiguration: TextFieldConfiguration(
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  filled: true,
-                  fillColor: Colors.green.withAlpha(30),
-                  hintText: 'Search Tags',
-                  labelText: 'Select Tags',
+          Form(
+            key: _formKey,
+            child: Column(children: [
+              FlutterTagging<Language>(
+                dropdown: true,
+                initialItems: _selectedLanguages,
+                marginTop: 5,
+                validator: (val) {
+                  if (val == null || val.isEmpty) {
+                    return 'Empty';
+                  }
+                  return null;
+                },
+                textFieldConfiguration: TextFieldConfiguration(
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    filled: true,
+                    fillColor: Colors.green.withAlpha(30),
+                    hintText: 'Search Tags',
+                    labelText: 'Select Tags',
+                  ),
+                  controller: controller,
                 ),
+                findSuggestions: getLanguages,
+                additionCallback: (value) {
+                  return Language(
+                    name: value,
+                    position: 0,
+                  );
+                },
+                onAdded: (language) {
+                  // api calls here, triggered when add to tag button is pressed
+                  return Language(name: language.name, position: -1);
+                },
+                configureSuggestion: (lang) {
+                  return SuggestionConfiguration(
+                      title: Text(lang.name),
+                      subtitle: Text(lang.position.toString()),
+                      additionWidget: Chip(
+                        avatar: Icon(
+                          Icons.add_circle,
+                          color: Colors.white,
+                        ),
+                        label: Text('Add New Tag'),
+                        labelStyle: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.w300,
+                        ),
+                        backgroundColor: Colors.green,
+                      ),
+                      text: lang.name);
+                },
+                configureChip: (lang) {
+                  return ChipConfiguration(
+                    label: Text(lang.name),
+                    backgroundColor: Colors.green,
+                    labelStyle: TextStyle(color: Colors.white),
+                    deleteIconColor: Colors.white,
+                  );
+                },
+                onChanged: () {
+                  setState(() {
+                    _selectedValuesJson = _selectedLanguages
+                        .map<String>((lang) => '\n${lang.toJson()}')
+                        .toList()
+                        .toString();
+                    _selectedValuesJson =
+                        _selectedValuesJson.replaceFirst('}]', '}\n]');
+                  });
+                },
               ),
-              findSuggestions: getLanguages,
-              additionCallback: (value) {
-                return Language(
-                  name: value,
-                  position: 0,
-                );
-              },
-              onAdded: (language) {
-                // api calls here, triggered when add to tag button is pressed
-                return Language(name: language.name, position: -1);
-              },
-              configureSuggestion: (lang) {
-                return SuggestionConfiguration(
-                    title: Text(lang.name),
-                    subtitle: Text(lang.position.toString()),
-                    additionWidget: Chip(
-                      avatar: Icon(
-                        Icons.add_circle,
-                        color: Colors.white,
-                      ),
-                      label: Text('Add New Tag'),
-                      labelStyle: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.w300,
-                      ),
-                      backgroundColor: Colors.green,
-                    ),
-                    text: lang.name);
-              },
-              configureChip: (lang) {
-                return ChipConfiguration(
-                  label: Text(lang.name),
-                  backgroundColor: Colors.green,
-                  labelStyle: TextStyle(color: Colors.white),
-                  deleteIconColor: Colors.white,
-                );
-              },
-              onChanged: () {
-                setState(() {
-                  _selectedValuesJson = _selectedLanguages
-                      .map<String>((lang) => '\n${lang.toJson()}')
-                      .toList()
-                      .toString();
-                  _selectedValuesJson =
-                      _selectedValuesJson.replaceFirst('}]', '}\n]');
-                });
-              },
-            ),
+              SizedBox(
+                height: 20.0,
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate() ?? false) {
+                    // Handle button press when the form is valid
+                    // You can add your logic here
+                  }
+                },
+                child: Text('Validate and Proceed'),
+              ),
+            ]),
           ),
           SizedBox(
-            height: 20.0,
+            height: 20,
           ),
           Expanded(
             child: SyntaxView(
