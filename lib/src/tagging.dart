@@ -144,7 +144,14 @@ class FlutterTagging<T extends Taggable> extends StatefulWidget {
   ///
   bool filter = false;
 
+  /// Validator to help validate the field inside the Form Widget
+  ///
+
   late final String? Function(String?)? validator;
+
+  /// The Size of the TextFormField
+  ///
+  final double? fieldSize;
 
   /// Creates a [FlutterTagging] widget.
   FlutterTagging(
@@ -171,7 +178,8 @@ class FlutterTagging<T extends Taggable> extends StatefulWidget {
       this.animationStart = 0.25,
       this.onAdded,
       this.dropdown = false,
-      this.validator});
+      this.validator,
+      this.fieldSize});
 
   @override
   _FlutterTaggingState<T> createState() => _FlutterTaggingState<T>();
@@ -203,128 +211,137 @@ class _FlutterTaggingState<T extends Taggable>
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        TypeAheadFormField<T>(
-          getImmediateSuggestions: widget.enableImmediateSuggestion,
-          debounceDuration: widget.debounceDuration,
-          hideOnEmpty: widget.hideOnEmpty,
-          hideOnError: widget.hideOnError,
-          hideOnLoading: widget.hideOnLoading,
-          animationStart: widget.animationStart,
-          animationDuration: widget.animationDuration,
-          validator: widget.validator,
-          autoFlipDirection:
-              widget.suggestionsBoxConfiguration.autoFlipDirection,
-          direction: widget.suggestionsBoxConfiguration.direction,
-          hideSuggestionsOnKeyboardHide:
-              widget.suggestionsBoxConfiguration.hideSuggestionsOnKeyboardHide,
-          keepSuggestionsOnLoading:
-              widget.suggestionsBoxConfiguration.keepSuggestionsOnLoading,
-          keepSuggestionsOnSuggestionSelected: widget
-              .suggestionsBoxConfiguration.keepSuggestionsOnSuggestionSelected,
-          suggestionsBoxController:
-              widget.suggestionsBoxConfiguration.suggestionsBoxController,
-          suggestionsBoxDecoration:
-              widget.suggestionsBoxConfiguration.suggestionsBoxDecoration,
-          suggestionsBoxVerticalOffset:
-              widget.suggestionsBoxConfiguration.suggestionsBoxVerticalOffset,
-          errorBuilder: widget.errorBuilder,
-          transitionBuilder: widget.transitionBuilder,
-          loadingBuilder: (context) =>
-              widget.loadingBuilder?.call(context) ??
-              SizedBox(
-                height: 3.0,
-                child: LinearProgressIndicator(),
-              ),
-          noItemsFoundBuilder: widget.emptyBuilder,
-          textFieldConfiguration: widget.textFieldConfiguration.copyWith(
-              focusNode: _focusNode,
-              controller: _textController,
-              enabled: widget.textFieldConfiguration.enabled,
-              onChanged: (String val) {
-                setState(() {
-                  widget.filter = true;
-                });
-              }),
-          suggestionsCallback: (query) async {
-            final suggestions = widget.filter
-                ? await widget.findSuggestions(query)
-                : await widget.findSuggestions('');
-            suggestions.removeWhere(widget.initialItems.contains);
-            if (widget.additionCallback != null && query.isNotEmpty) {
-              final additionItem = widget.additionCallback!(query);
-              if (!suggestions.contains(additionItem) &&
-                  !widget.initialItems.contains(additionItem)) {
-                _additionItem = additionItem;
-                // suggestions.insert(0, additionItem);
-              } else {
-                _additionItem = null;
+        SizedBox(
+          height: widget.fieldSize,
+          child: TypeAheadFormField<T>(
+            getImmediateSuggestions: widget.enableImmediateSuggestion,
+            debounceDuration: widget.debounceDuration,
+            hideOnEmpty: widget.hideOnEmpty,
+            hideOnError: widget.hideOnError,
+            hideOnLoading: widget.hideOnLoading,
+            animationStart: widget.animationStart,
+            animationDuration: widget.animationDuration,
+            validator: widget.validator,
+            autoFlipDirection:
+                widget.suggestionsBoxConfiguration.autoFlipDirection,
+            direction: widget.suggestionsBoxConfiguration.direction,
+            hideSuggestionsOnKeyboardHide: widget
+                .suggestionsBoxConfiguration.hideSuggestionsOnKeyboardHide,
+            keepSuggestionsOnLoading:
+                widget.suggestionsBoxConfiguration.keepSuggestionsOnLoading,
+            keepSuggestionsOnSuggestionSelected: widget
+                .suggestionsBoxConfiguration
+                .keepSuggestionsOnSuggestionSelected,
+            suggestionsBoxController:
+                widget.suggestionsBoxConfiguration.suggestionsBoxController,
+            suggestionsBoxDecoration:
+                widget.suggestionsBoxConfiguration.suggestionsBoxDecoration,
+            suggestionsBoxVerticalOffset:
+                widget.suggestionsBoxConfiguration.suggestionsBoxVerticalOffset,
+            errorBuilder: widget.errorBuilder,
+            transitionBuilder: widget.transitionBuilder,
+            loadingBuilder: (context) =>
+                widget.loadingBuilder?.call(context) ??
+                SizedBox(
+                  height: 3.0,
+                  child: LinearProgressIndicator(),
+                ),
+            noItemsFoundBuilder: widget.emptyBuilder,
+            textFieldConfiguration: widget.textFieldConfiguration.copyWith(
+                focusNode: _focusNode,
+                controller: _textController,
+                enabled: widget.textFieldConfiguration.enabled,
+                onChanged: (String val) {
+                  setState(() {
+                    widget.filter = true;
+                  });
+                }),
+            suggestionsCallback: (query) async {
+              final suggestions = widget.filter
+                  ? await widget.findSuggestions(query)
+                  : await widget.findSuggestions('');
+              suggestions.removeWhere(widget.initialItems.contains);
+              if (widget.additionCallback != null && query.isNotEmpty) {
+                final additionItem = widget.additionCallback!(query);
+                if (!suggestions.contains(additionItem) &&
+                    !widget.initialItems.contains(additionItem)) {
+                  _additionItem = additionItem;
+                  // suggestions.insert(0, additionItem);
+                } else {
+                  _additionItem = null;
+                }
               }
-            }
-            return suggestions;
-          },
-          itemBuilder: (context, item) {
-            final conf = widget.configureSuggestion(item);
-            return ListTile(
-              key: ObjectKey(item),
-              title: conf.title,
-              subtitle: conf.subtitle,
-              leading: conf.leading,
-              trailing: InkWell(
-                splashColor: conf.splashColor ?? Theme.of(context).splashColor,
-                borderRadius: conf.splashRadius,
-                onTap: widget.dropdown
-                    ? () {
-                        setState(() {
-                          widget.filter = false;
-                        });
-                      }
-                    : () async {
-                        if (widget.onAdded != null) {
-                          final _item = await widget.onAdded!(item);
-                          widget.initialItems.add(_item);
-                          setState(() {
-                            widget.filter = false;
-                          });
-                        } else {
-                          widget.initialItems.add(item);
+              return suggestions;
+            },
+            itemBuilder: (context, item) {
+              final conf = widget.configureSuggestion(item);
+              return ListTile(
+                key: ObjectKey(item),
+                title: conf.title,
+                subtitle: conf.subtitle,
+                leading: conf.leading,
+                trailing: InkWell(
+                  splashColor:
+                      conf.splashColor ?? Theme.of(context).splashColor,
+                  borderRadius: conf.splashRadius,
+                  onTap: widget.dropdown
+                      ? () {
                           setState(() {
                             widget.filter = false;
                           });
                         }
-                        setState(() {});
-                        widget.onChanged?.call();
-                        _textController.clear();
-                        _focusNode.unfocus();
-                      },
-                child: Builder(
-                  builder: (context) {
-                    if (conf.additionWidget != null && _additionItem == item) {
-                      return conf.additionWidget!;
-                    } else {
-                      return SizedBox(width: 0);
+                      : () async {
+                          if (widget.onAdded != null) {
+                            final _item = await widget.onAdded!(item);
+                            widget.initialItems.add(_item);
+                            setState(() {
+                              widget.filter = false;
+                            });
+                          } else {
+                            widget.initialItems.add(item);
+                            setState(() {
+                              widget.filter = false;
+                            });
+                          }
+                          setState(() {});
+                          widget.onChanged?.call();
+                          _textController.clear();
+                          _focusNode.unfocus();
+                        },
+                  child: Builder(
+                    builder: (context) {
+                      if (conf.additionWidget != null &&
+                          _additionItem == item) {
+                        return conf.additionWidget!;
+                      } else {
+                        return SizedBox(
+                          width: 0,
+                          height: 0,
+                        );
+                      }
+                    },
+                  ),
+                ),
+              );
+            },
+            onSuggestionSelected: widget.dropdown
+                ? (suggestion) {
+                    final conf = widget.configureSuggestion(suggestion);
+                    final text = conf.text.toString();
+                    setState(() {
+                      _textController.text = text;
+                      widget.filter = false;
+                    });
+                  }
+                : (suggestion) {
+                    if (_additionItem != suggestion) {
+                      widget.initialItems.add(suggestion);
+                      setState(() {});
+                      widget.onChanged?.call();
+                      _textController.clear();
                     }
                   },
-                ),
-              ),
-            );
-          },
-          onSuggestionSelected: widget.dropdown
-              ? (suggestion) {
-                  final conf = widget.configureSuggestion(suggestion);
-                  final text = conf.text.toString();
-                  setState(() {
-                    _textController.text = text;
-                    widget.filter = false;
-                  });
-                }
-              : (suggestion) {
-                  if (_additionItem != suggestion) {
-                    widget.initialItems.add(suggestion);
-                    setState(() {});
-                    widget.onChanged?.call();
-                    _textController.clear();
-                  }
-                },
+          ),
         ),
         widget.dropdown
             ? SizedBox(

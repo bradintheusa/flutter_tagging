@@ -59,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
               FlutterTagging<Language>(
                 dropdown: true,
                 initialItems: _selectedLanguages,
-                marginTop: 5,
+                marginTop: 10,
                 validator: (val) {
                   if (val == null || val.isEmpty) {
                     return 'Empty';
@@ -72,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     filled: true,
                     fillColor: Colors.green.withAlpha(30),
                     hintText: 'Search Tags',
-                    labelText: 'Select Tags',
+                    contentPadding: EdgeInsets.all(14),
                   ),
                   controller: controller,
                 ),
