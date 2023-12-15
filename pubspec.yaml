@@ -1,7 +1,7 @@
 name: flutter_tagging_plus
 description: A flutter package with tagging or multiselect functionality. Useful for adding Tag or Label Selection Forms.
-version: 4.0.2
-repository: https://github.com/bradintheusa/flutter_tagging_plus
+version: 4.1.0
+repository: https://github.com/waqas-JT/flutter_tagging_plus
 
 
 environment:
@@ -10,10 +10,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_typeahead: ^4.6.2
-  collection: ">=1.14.11 <2.0.0"
-  meta: ">=1.1.7 <2.0.0"
+  flutter_typeahead: ^4.8.0
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+publish_to: none
